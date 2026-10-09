@@ -1,0 +1,2459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>World of Thinker</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --panel-2: #f7eef2;
+    --accent: #e23a72;
+    --accent-2: #f472a0;
+    --accent-grad2: #f472a0;
+    --danger: #b3503c;
+    --text: #241a2e;
+    --text-dim: #7a7488;
+    --border: #ecdde5;
+    --on-accent: #ffffff;
+    --card-shadow: 0 2px 12px rgba(43, 30, 66, 0.07);
+    --card-shadow-hover: 0 8px 24px rgba(43, 30, 66, 0.12);
+    --accent-soft: rgba(226, 58, 114, 0.09);
+    --mtn-sky-top: #efe6fa;
+    --mtn-sky-mid: #ffffff;
+    --mtn-1: #c9aee9;
+    --mtn-2: #9b6dd6;
+    --mtn-3: #6b3fa0;
+  }
+  body.dark {
+    --bg: #0b0d16;
+    --panel: #12141f;
+    --panel-2: #171a29;
+    --accent: #e8a44d;
+    --accent-2: #f4c98a;
+    --accent-grad2: #ffcf85;
+    --danger: #e0806f;
+    --text: #f1ead9;
+    --text-dim: #8b8fa3;
+    --border: #262a3d;
+    --on-accent: #1b1408;
+    --card-shadow: 0 2px 14px rgba(0,0,0,0.4);
+    --card-shadow-hover: 0 10px 28px rgba(0,0,0,0.55);
+    --accent-soft: rgba(232, 164, 77, 0.12);
+    --star-dim: #4a5170;
+    --star-bright: #e8a44d;
+    --const-line: rgba(139,143,163,0.35);
+    --mtn-sky-top: #05060c;
+    --mtn-sky-mid: #0b0d16;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    background: linear-gradient(180deg, #dce9fb 0%, #eef4ec 50%, #dcefd2 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 16px 80px;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+  body.dark { background: var(--bg); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 30;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    font-size: 0.82rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  }
+  body:has(#appScreen:not(.hidden)) .theme-toggle { display: none; }
+  .cookie-banner {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 200;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    box-shadow: var(--card-shadow-hover);
+  }
+  .cookie-banner p {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    max-width: 620px;
+    line-height: 1.5;
+  }
+  .cookie-banner-actions { display: flex; gap: 10px; flex: none; }
+  .cookie-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent-grad2));
+    color: var(--on-accent);
+    border: none;
+    border-radius: 20px;
+    padding: 9px 20px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .cookie-btn-decline {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 20px;
+    padding: 9px 18px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  @media (max-width: 640px) {
+    .cookie-banner { flex-direction: column; text-align: center; padding: 16px; }
+    .cookie-banner-actions { width: 100%; justify-content: center; }
+  }
+  .mountain-banner {
+    width: 100%;
+    height: 190px;
+    margin: 0 0 24px;
+    background: linear-gradient(180deg, var(--mtn-sky-top) 0%, var(--mtn-sky-mid) 70%, var(--bg) 100%);
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.25s ease;
+  }
+  .mountain-banner svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
+  .banner-constellation { display: none; }
+  body.dark .banner-mountains { display: none; }
+  body.dark .banner-constellation { display: block; }
+  .wrap { max-width: 1160px; margin: 0 auto; }
+  header { text-align: left; margin-bottom: 20px; }
+  header h1 { font-size: 2.1rem; margin: 0 0 6px; letter-spacing: 0.5px; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--text-dim); margin: 0; font-size: 0.95rem; font-family: system-ui, sans-serif; }
+
+  /* ---- Auth panel ---- */
+  .auth-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    max-width: 380px;
+    margin: 40px auto;
+  }
+  .auth-card h2 { margin: 0 0 4px; font-size: 1.3rem; text-align: center; }
+  .auth-card .sub { text-align: center; color: var(--text-dim); font-family: system-ui, sans-serif; font-size: 0.82rem; margin-bottom: 16px; }
+  .auth-card input {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+  .auth-card button {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-grad2));
+    color: var(--on-accent);
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-weight: 700;
+    font-family: system-ui, sans-serif;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .auth-card button:disabled { opacity: 0.5; cursor: default; }
+  .auth-toggle {
+    text-align: center;
+    margin-top: 12px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+  .auth-toggle a { color: var(--accent-2); cursor: pointer; text-decoration: underline; }
+  .auth-error {
+    background: rgba(224,138,138,0.12);
+    border: 1px solid rgba(224,138,138,0.4);
+    color: var(--danger);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.82rem;
+    margin-bottom: 10px;
+  }
+  .security-note {
+    font-family: system-ui, sans-serif;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 14px;
+    line-height: 1.4;
+  }
+
+  /* ---- App (post-login) ---- */
+  .app-topbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    max-width: 1160px;
+    margin: 0 auto 20px;
+    background: var(--panel);
+    border-radius: 999px;
+    padding: 10px 22px;
+    box-shadow: var(--card-shadow);
+  }
+  .app-topbar-logo {
+    font-family: system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--text);
+    justify-self: start;
+  }
+  .app-topbar-logo .logo-dot { color: var(--accent); }
+  .segmented {
+    justify-self: center;
+    display: inline-flex;
+    background: var(--panel-2);
+    border-radius: 999px;
+    padding: 4px;
+    gap: 2px;
+  }
+  .segmented button {
+    border: none;
+    background: none;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .segmented button.active { background: var(--panel); color: var(--text); box-shadow: var(--card-shadow); }
+  .circle-theme-btn {
+    justify-self: end;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .circle-theme-btn:hover { background: var(--accent-soft); color: var(--accent); }
+  .theme-icon {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex: none;
+  }
+  .theme-toggle, #settingsThemeToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .theme-toggle .theme-icon, #settingsThemeToggle .theme-icon { width: 15px; height: 15px; }
+  @media (max-width: 640px) {
+    .app-topbar { grid-template-columns: auto auto; row-gap: 10px; border-radius: 22px; }
+    .segmented { grid-column: 1 / -1; order: 3; justify-self: stretch; }
+    .segmented button { flex: 1; }
+  }
+
+  .kebab-wrap { position: relative; flex: 1; min-width: 0; }
+  .kebab-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .kebab-btn:hover { background: var(--panel-2); }
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 40;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-width: 190px;
+    padding: 6px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .dropdown-menu button {
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 9px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    font-size: 0.88rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dropdown-menu button:hover { background: var(--panel-2); }
+  .dropdown-menu button.danger { color: var(--danger); }
+  .dropdown-menu button.danger:hover { background: rgba(224,128,111,0.12); }
+
+  .pfp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+    flex: none;
+    cursor: pointer;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+  }
+  .pfp img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pfp.avatar-initial {
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 700;
+    font-family: system-ui, sans-serif;
+    border-color: transparent;
+  }
+  .pfp-sm { width: 26px; height: 26px; font-size: 0.72rem; }
+  .pfp-md { width: 44px; height: 44px; font-size: 1.1rem; }
+  .pfp-tiny { width: 18px; height: 18px; font-size: 0.6rem; vertical-align: -3px; }
+  .pfp-lg { width: 88px; height: 88px; font-size: 2rem; cursor: default; }
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    font-size: 0.8rem;
+  }
+
+  .composer {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 28px;
+    box-shadow: var(--card-shadow);
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(20, 15, 25, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    max-height: 88vh;
+    overflow-y: auto;
+    margin-bottom: 0;
+    box-shadow: var(--card-shadow-hover);
+  }
+  .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 4px;
+  }
+  .modal-close:hover { color: var(--text); }
+  .composer-title {
+    font-family: system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .app-layout {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 28px;
+    align-items: start;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .app-topics-col {
+    position: sticky;
+    top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .sidebar-greeting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 4px;
+  }
+  .greeting-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+  }
+  .greeting-text {
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    font-size: 1.15rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sidebar-collapse-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    cursor: pointer;
+    flex: none;
+  }
+  .sidebar-collapse-btn:hover { background: var(--accent-soft); color: var(--accent); }
+  .app-layout.sidebar-collapsed .topics-card,
+  .app-layout.sidebar-collapsed .sidebar-greeting { display: none; }
+  .app-layout.sidebar-collapsed { grid-template-columns: 1fr; }
+
+  .topics-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 10px;
+    box-shadow: var(--card-shadow);
+  }
+  .topics-title {
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+    padding: 0 10px;
+  }
+  .topics-list { display: flex; flex-direction: column; gap: 3px; }
+  .topic-btn {
+    text-align: left;
+    background: none;
+    border: 1px solid transparent;
+    border-left: 3px solid transparent;
+    border-radius: 8px;
+    padding: 9px 10px;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    font-size: 0.96rem;
+    letter-spacing: 0.01em;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .topic-btn:hover { background: var(--accent-soft); color: var(--text); }
+  .topic-btn.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+    border-left-color: var(--accent);
+  }
+  .theory-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .topic-tag {
+    display: inline-block;
+    font-family: system-ui, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px 12px;
+    vertical-align: middle;
+  }
+  .theory-date {
+    font-family: system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--text-dim);
+  }
+  .theory-quote {
+    position: relative;
+    margin: 0 0 12px;
+    padding: 0 22px;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-size: 1.02rem;
+  }
+  .theory-quote::before, .theory-quote::after {
+    font-family: 'Georgia', serif;
+    font-size: 1.8rem;
+    color: var(--accent);
+    opacity: 0.6;
+    position: absolute;
+    line-height: 1;
+  }
+  .theory-quote::before { content: '\201C'; left: 0; top: 4px; }
+  .theory-quote::after { content: '\201D'; margin-left: 4px; }
+  @media (max-width: 1100px) {
+    .app-layout { grid-template-columns: 160px 1fr; gap: 20px; }
+  }
+  @media (max-width: 900px) {
+    .app-layout { grid-template-columns: 1fr; }
+    .app-topics-col { position: static; order: -1; }
+    .topics-list { flex-direction: row; flex-wrap: wrap; }
+    .topic-btn { width: auto; }
+  }
+  .composer input, .composer textarea, .composer select {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 0.98rem;
+    margin-bottom: 10px;
+    resize: vertical;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .composer input:focus, .composer textarea:focus, .composer select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .composer select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-dim) 50%), linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
+    background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+  }
+  .composer textarea { min-height: 90px; }
+  .composer button {
+    background: linear-gradient(135deg, var(--accent), var(--accent-grad2));
+    color: var(--on-accent);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 700;
+    font-family: system-ui, sans-serif;
+    cursor: pointer;
+    float: right;
+  }
+  .composer button:disabled { opacity: 0.5; cursor: default; }
+
+  .feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .feed-header-title {
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text);
+  }
+  .archive-btn {
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .archive-btn:hover { opacity: 0.88; }
+  .sort-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+  }
+  .sort-bar button {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .sort-bar button:hover { border-color: var(--accent); color: var(--text); }
+  .sort-bar button.active { color: var(--on-accent); background: var(--accent-2); border-color: var(--accent-2); box-shadow: var(--card-shadow); }
+
+  .theory {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    animation: fadeIn 0.3s ease;
+  }
+  .theory:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); }
+  .theory.mine { border-left-color: var(--accent-2); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none;} }
+  .theory h3 { margin: 0 0 6px; font-size: 1.15rem; }
+  .theory-meta { font-family: system-ui, sans-serif; font-size: 0.78rem; color: var(--text-dim); margin-bottom: 10px; }
+  .theory-meta .you { color: var(--accent-2); font-weight: 600; }
+  .theory textarea.edit-body {
+    width: 100%; min-height: 90px; background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); padding: 10px; font-family: inherit; margin-bottom: 8px;
+  }
+  .theory-footer { display: flex; align-items: center; gap: 10px; font-family: system-ui, sans-serif; }
+  .upvote {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--accent-2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .upvote.voted { background: var(--accent-2); color: var(--on-accent); }
+  .upvote:disabled { opacity: 0.6; cursor: default; }
+  .mini-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 20px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+  .mini-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
+  .empty, .loading {
+    text-align: center;
+    color: var(--text-dim);
+    font-family: system-ui, sans-serif;
+    padding: 48px 20px;
+    background: var(--panel);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    font-size: 0.95rem;
+  }
+  .notice { font-family: system-ui, sans-serif; font-size: 0.75rem; color: var(--text-dim); text-align: center; max-width: 1100px; margin: -10px auto 20px; }
+  .intro-card {
+    max-width: 560px;
+    margin: 20px auto 40px;
+    text-align: center;
+  }
+  .intro-layout {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 36px;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .intro-quotes {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    width: 200px;
+    flex: none;
+  }
+  .intro-quotes.left { align-items: flex-end; text-align: right; }
+  .intro-quotes.right { align-items: flex-start; text-align: left; }
+  .intro-quote {
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.5);
+  }
+  .intro-quote blockquote {
+    margin: 0 0 6px;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    font-style: italic;
+    font-size: 0.98rem;
+    line-height: 1.45;
+    color: #3a3247;
+  }
+  .intro-quote cite {
+    font-family: system-ui, sans-serif;
+    font-style: normal;
+    font-size: 0.75rem;
+    color: #6b3fa0;
+    letter-spacing: 0.02em;
+  }
+  @media (max-width: 1000px) {
+    .intro-quotes { display: none; }
+  }
+  .intro-fixed-cta {
+    position: fixed;
+    top: 16px;
+    right: 160px;
+    z-index: 35;
+    padding: 9px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  @media (max-width: 640px) {
+    .intro-fixed-cta {
+      position: static;
+      display: block;
+      margin: 0 auto 22px;
+      width: fit-content;
+    }
+  }
+  .intro-card h2 {
+    font-size: 1.6rem;
+    margin: 0 0 6px;
+  }
+  .intro-card .intro-tagline {
+    color: var(--text-dim);
+    font-family: system-ui, sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 22px;
+  }
+  .intro-card p {
+    line-height: 1.65;
+    margin: 0 0 16px;
+    font-size: 1.02rem;
+  }
+  .intro-features {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 24px 0 30px;
+    font-family: system-ui, sans-serif;
+  }
+  .intro-feature {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    width: 150px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+  .intro-feature .emoji { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .intro-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .cta-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent-grad2));
+    color: var(--on-accent);
+    border: none;
+    border-radius: 24px;
+    padding: 13px 30px;
+    font-weight: 700;
+    font-family: system-ui, sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  }
+  .intro-login-link {
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  .intro-login-link a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+
+  .founder-card {
+    max-width: 480px;
+    margin: 20px auto 40px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px 26px;
+    text-align: center;
+  }
+  .terms-card {
+    max-width: 620px;
+    margin: 20px auto 40px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px 30px 26px;
+  }
+  .terms-card h2 { margin: 0 0 4px; font-size: 1.5rem; text-align: center; }
+  .terms-updated {
+    text-align: center;
+    color: var(--text-dim);
+    font-family: system-ui, sans-serif;
+    font-size: 0.78rem;
+    margin-bottom: 20px;
+  }
+  .terms-body {
+    max-height: 52vh;
+    overflow-y: auto;
+    text-align: left;
+    padding-right: 8px;
+    margin-bottom: 8px;
+  }
+  .terms-body h4 {
+    font-family: system-ui, sans-serif;
+    font-size: 0.92rem;
+    color: var(--accent);
+    margin: 18px 0 6px;
+  }
+  .terms-body h4:first-child { margin-top: 0; }
+  .terms-body p, .terms-body li {
+    font-family: system-ui, sans-serif;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin: 0 0 8px;
+  }
+  .terms-body ul { margin: 0 0 8px; padding-left: 20px; }
+  .founder-avatar {
+    width: 84px;
+    height: 84px;
+    font-size: 2rem;
+    margin: 0 auto 16px;
+  }
+  .founder-card h2 { margin: 0 0 2px; font-size: 1.4rem; }
+  .founder-role { color: var(--accent); font-family: system-ui, sans-serif; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
+  .founder-card p { line-height: 1.6; margin: 0 0 14px; font-size: 0.98rem; text-align: left; }
+  .founder-quote {
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+    font-style: italic;
+    color: var(--text-dim);
+    margin: 18px 0;
+    text-align: left;
+  }
+  .founder-contact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  .founder-contact a { color: var(--accent); font-weight: 600; }
+  .founder-contact a:hover { text-decoration: underline; }
+  .back-link {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .about-link {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    font-size: 0.8rem;
+  }
+
+  .profile-card {
+    max-width: 480px;
+    margin: 20px auto 40px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px 26px;
+  }
+  .profile-card h2 { margin: 0 0 4px; font-size: 1.4rem; text-align: center; }
+  .profile-sub { text-align: center; color: var(--text-dim); font-family: system-ui, sans-serif; font-size: 0.82rem; margin-bottom: 22px; }
+  .profile-field { margin-bottom: 16px; }
+  .profile-field label {
+    display: block;
+    font-family: system-ui, sans-serif;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .profile-field input[type="text"], .profile-field textarea {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: vertical;
+  }
+  .profile-field textarea { min-height: 70px; font-family: system-ui, sans-serif; }
+  .avatar-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pfp-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .pfp-upload-actions { display: flex; flex-direction: column; gap: 8px; }
+  .pfp-upload-actions .mini-btn { text-align: center; }
+  .profile-actions { display: flex; gap: 10px; margin-top: 22px; }
+  .profile-actions .cta-btn { flex: 1; padding: 11px 20px; font-size: 0.92rem; }
+  .profile-cancel {
+    flex: none;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 24px;
+    padding: 11px 20px;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    font-size: 0.92rem;
+  }
+  .profile-cancel.danger { color: var(--danger); border-color: var(--danger); }
+  .profile-saved-msg {
+    text-align: center;
+    font-family: system-ui, sans-serif;
+    font-size: 0.8rem;
+    color: var(--accent-2);
+    margin-top: 12px;
+  }
+  .hidden { display: none !important; }
+
+  .notfound-card {
+    max-width: 460px;
+    margin: 60px auto;
+    text-align: center;
+  }
+  .notfound-code {
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+  .notfound-card h2 { margin: 0 0 10px; font-size: 1.5rem; }
+  .notfound-card p {
+    color: var(--text-dim);
+    font-family: system-ui, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 26px;
+  }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">Dark</button>
+<div class="mountain-banner">
+  <svg class="banner-mountains" viewBox="0 0 800 190" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="0,190 0,90 140,20 260,110 340,50 460,130 560,60 650,120 800,70 800,190" fill="var(--mtn-1)" opacity="0.85"/>
+    <polygon points="0,190 0,130 100,70 220,150 320,90 420,160 540,100 660,150 760,110 800,140 800,190" fill="var(--mtn-2)" opacity="0.9"/>
+    <polygon points="0,190 0,160 120,120 240,175 360,135 480,180 600,140 720,178 800,155 800,190" fill="var(--mtn-3)"/>
+  </svg>
+  <svg class="banner-constellation" viewBox="0 0 800 190" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="var(--const-line)" stroke-width="1" fill="none">
+      <line x1="60" y1="130" x2="140" y2="60"/>
+      <line x1="140" y1="60" x2="230" y2="110"/>
+      <line x1="230" y1="110" x2="300" y2="40"/>
+      <line x1="300" y1="40" x2="360" y2="150"/>
+      <line x1="360" y1="150" x2="430" y2="80"/>
+      <line x1="430" y1="80" x2="500" y2="120"/>
+      <line x1="500" y1="120" x2="560" y2="50"/>
+      <line x1="560" y1="50" x2="630" y2="140"/>
+      <line x1="630" y1="140" x2="690" y2="90"/>
+      <line x1="690" y1="90" x2="750" y2="130"/>
+      <line x1="120" y1="170" x2="60" y2="130"/>
+      <line x1="400" y1="170" x2="360" y2="150"/>
+      <line x1="660" y1="30" x2="630" y2="140"/>
+    </g>
+    <g fill="var(--star-bright)" opacity="0.16">
+      <circle cx="140" cy="60" r="7"/>
+      <circle cx="360" cy="150" r="7"/>
+      <circle cx="560" cy="50" r="7"/>
+    </g>
+    <g fill="var(--star-dim)">
+      <circle cx="60" cy="130" r="1.6"/>
+      <circle cx="230" cy="110" r="1.6"/>
+      <circle cx="300" cy="40" r="1.6"/>
+      <circle cx="430" cy="80" r="1.6"/>
+      <circle cx="500" cy="120" r="1.6"/>
+      <circle cx="630" cy="140" r="1.6"/>
+      <circle cx="690" cy="90" r="1.6"/>
+      <circle cx="750" cy="130" r="1.6"/>
+      <circle cx="120" cy="170" r="1.6"/>
+      <circle cx="400" cy="170" r="1.6"/>
+      <circle cx="660" cy="30" r="1.6"/>
+    </g>
+    <g fill="var(--star-bright)">
+      <circle cx="140" cy="60" r="2.6"/>
+      <circle cx="360" cy="150" r="2.6"/>
+      <circle cx="560" cy="50" r="2.6"/>
+    </g>
+  </svg>
+</div>
+<div class="wrap">
+  <header>
+    <h1>World of <span>Thinker</span></h1>
+  </header>
+
+  <!-- FOUNDER SCREEN -->
+  <div id="founderScreen" class="hidden">
+    <div class="founder-card">
+      <div class="pfp avatar-initial founder-avatar">S</div>
+      <h2>Suraj Prasad</h2>
+      <div class="founder-role">Founder, World of Thinker</div>
+      <p>
+        Suraj started World of Thinker after noticing how many good ideas never
+        get said out loud simply because they aren't "finished" or provable yet.
+        A lifelong collector of odd hunches — about history, human behavior, and
+        the occasional conspiracy about pigeons — Suraj wanted a home for the
+        theories people usually keep to themselves.
+      </p>
+      <div class="founder-quote">
+        "You don't need a PhD to have a theory. You just need to be curious
+        enough to say it out loud."
+      </div>
+      <p>
+        Suraj believes the best ideas often start out sounding a little
+        ridiculous, and that a community built around curiosity — not
+        certainty — is worth building.
+      </p>
+      <div class="founder-contact">
+        Business inquiries: <a href="mailto:prasadsuraj09921@gmail.com">prasadsuraj09921@gmail.com</a>
+      </div>
+      <div class="back-link" onclick="hideFounder()">← Back</div>
+    </div>
+  </div>
+
+  <!-- TERMS SCREEN -->
+  <div id="termsScreen" class="hidden">
+    <div class="terms-card">
+      <h2>Terms & Conditions</h2>
+      <div class="terms-updated">Last updated: September 2026</div>
+      <div class="terms-body">
+        <h4>1. Acceptance of Terms</h4>
+        <p>
+          By creating an account or using World of Thinker, you agree to these
+          terms. If you don't agree with them, please don't use the board.
+        </p>
+
+        <h4>2. Your Account</h4>
+        <p>
+          You're responsible for keeping your password secure and for anything
+          posted under your account. Usernames must be your own choice and
+          shouldn't impersonate another person or the World of Thinker team.
+        </p>
+
+        <h4>3. Your Theories</h4>
+        <p>
+          You keep ownership of anything you post. By posting, you give World
+          of Thinker permission to display it on the board. Theories are
+          opinions and speculation shared for fun and discussion — not
+          verified facts, medical guidance, or professional advice.
+        </p>
+
+        <h4>4. Community Guidelines</h4>
+        <ul>
+          <li>No harassment, hate speech, or targeted abuse.</li>
+          <li>No spam, scams, or repeated low-effort posting.</li>
+          <li>No illegal content or content that facilitates harm.</li>
+          <li>No impersonating other users or the founder.</li>
+        </ul>
+
+        <h4>5. Moderation</h4>
+        <p>
+          Content that breaks these guidelines may be removed, and accounts
+          that repeatedly break them may be restricted. Automated limits
+          (like posting cooldowns) may apply to keep the board usable for
+          everyone.
+        </p>
+
+        <h4>6. Disclaimer</h4>
+        <p>
+          The board is provided "as is." World of Thinker isn't responsible
+          for the accuracy of any theory posted, or for decisions made based
+          on them. Use your own judgment.
+        </p>
+
+        <h4>7. Changes to These Terms</h4>
+        <p>
+          These terms may be updated occasionally. Continuing to use the
+          board after a change means you accept the updated terms.
+        </p>
+
+        <h4>8. Contact</h4>
+        <p>
+          Questions about these terms can be sent to
+          <a href="mailto:prasadsuraj09921@gmail.com">prasadsuraj09921@gmail.com</a>.
+        </p>
+      </div>
+      <div class="back-link" onclick="hideTerms()">← Back</div>
+    </div>
+  </div>
+
+  <!-- PRIVACY SCREEN -->
+  <div id="privacyScreen" class="hidden">
+    <div class="terms-card">
+      <h2>Privacy Policy</h2>
+      <div class="terms-updated">Last updated: September 2026</div>
+      <div class="terms-body">
+        <h4>1. What We Collect</h4>
+        <ul>
+          <li>Account info: username and password (stored as a hash, never in plain text).</li>
+          <li>Profile info: display name, bio, and profile picture, if you add them.</li>
+          <li>Content you post: theories, topics, and votes.</li>
+          <li>Preferences: theme choice (light/dark) and your cookie banner choice.</li>
+        </ul>
+
+        <h4>2. What's Public vs. Private</h4>
+        <p>
+          Your theories, votes, display name, avatar, and bio are visible to
+          anyone using the board — that's the point of a shared theory
+          board. Your password and personal preferences (like theme) are
+          not shown to other users.
+        </p>
+
+        <h4>3. How We Use It</h4>
+        <p>
+          Your info is used to run your account, show your posts and
+          profile to others, and remember your preferences between visits.
+          We don't use it for anything beyond making the board work.
+        </p>
+
+        <h4>4. Data Storage & Security</h4>
+        <p>
+          Data is stored using the board's built-in storage system, tied to
+          your account. As noted at sign-up, this is a lightweight identity
+          system for this board only — not enterprise-grade security.
+          Don't reuse a sensitive password here.
+        </p>
+
+        <h4>5. Third Parties</h4>
+        <p>
+          We don't sell, rent, or share your data with advertisers or other
+          third parties.
+        </p>
+
+        <h4>6. Cookies & Storage</h4>
+        <p>
+          We use cookies and local storage for essential functions like
+          staying logged in, and for optional preferences like theme. You
+          can accept or decline non-essential storage from the banner shown
+          on your first visit.
+        </p>
+
+        <h4>7. Your Choices</h4>
+        <p>
+          You can edit or delete your own theories and update your profile
+          (name, bio, picture) at any time from My Profile.
+        </p>
+
+        <h4>8. Children's Privacy</h4>
+        <p>
+          World of Thinker isn't directed at children under 13, and we
+          don't knowingly collect information from them.
+        </p>
+
+        <h4>9. Changes to This Policy</h4>
+        <p>
+          This policy may be updated occasionally. Continuing to use the
+          board after a change means you accept the updated policy.
+        </p>
+
+        <h4>10. Contact</h4>
+        <p>
+          Questions about this policy can be sent to
+          <a href="mailto:prasadsuraj09921@gmail.com">prasadsuraj09921@gmail.com</a>.
+        </p>
+      </div>
+      <div class="back-link" onclick="hidePrivacy()">← Back</div>
+    </div>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div id="profileScreen" class="hidden">
+    <div class="profile-card">
+      <h2>Your Profile</h2>
+      <div class="profile-sub">Customize how others see you on the board</div>
+
+      <div class="profile-field">
+        <label>Profile Picture</label>
+        <div class="pfp-upload-row">
+          <span id="pfpPreview" class="pfp pfp-lg"></span>
+          <div class="pfp-upload-actions">
+            <button type="button" class="mini-btn" onclick="document.getElementById('pfpInput').click()">Upload Photo</button>
+            <button type="button" class="mini-btn danger" onclick="removePfp()">Remove</button>
+            <input type="file" id="pfpInput" accept="image/*" style="display:none" onchange="handlePfpUpload(event)">
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-field">
+        <label>Display name</label>
+        <input type="text" id="profileDisplayName" maxlength="40" />
+      </div>
+
+      <div class="profile-field">
+        <label>Bio</label>
+        <textarea id="profileBio" maxlength="200" placeholder="A short line about you..."></textarea>
+      </div>
+
+      <div class="profile-actions">
+        <button class="profile-cancel" onclick="hideProfile()">Cancel</button>
+        <button class="cta-btn" onclick="saveProfile()">Save Profile</button>
+      </div>
+      <div id="profileSavedMsg" class="profile-saved-msg hidden">Saved!</div>
+    </div>
+  </div>
+
+  <!-- SETTINGS SCREEN -->
+  <div id="settingsScreen" class="hidden">
+    <div class="profile-card">
+      <h2>Settings</h2>
+      <div class="profile-sub">Preferences for this device</div>
+
+      <div class="profile-field">
+        <label>Appearance</label>
+        <button type="button" class="mini-btn" id="settingsThemeToggle" onclick="toggleTheme()">Dark</button>
+      </div>
+
+      <div class="profile-field">
+        <label>Account</label>
+        <div style="font-family: system-ui, sans-serif; font-size: 0.9rem; color: var(--text-dim);">
+          Signed in as <b style="color: var(--text);" id="settingsUsername"></b>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button class="profile-cancel" onclick="hideSettings()">Back</button>
+        <button class="profile-cancel danger" onclick="logout()">Log Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 404 SCREEN -->
+  <div id="notFoundScreen" class="hidden">
+    <div class="notfound-card">
+      <div class="notfound-code">404</div>
+      <h2>This theory doesn't exist. Yet.</h2>
+      <p>
+        Whatever you were looking for isn't here — maybe it's still forming,
+        like a good theory should.
+      </p>
+      <button class="cta-btn" onclick="backFromNotFound()">Back to World of Thinker</button>
+    </div>
+  </div>
+
+  <!-- INTRO SCREEN -->
+  <div id="introScreen" class="hidden">
+    <button class="cta-btn intro-fixed-cta" onclick="goToApp()">Create a Theory</button>
+    <div class="intro-layout">
+      <div class="intro-quotes left">
+        <div class="intro-quote">
+          <blockquote>"Somewhere, something incredible is waiting to be known."</blockquote>
+          <cite>— Carl Sagan</cite>
+        </div>
+        <div class="intro-quote">
+          <blockquote>"Imagination is more important than knowledge."</blockquote>
+          <cite>— Albert Einstein</cite>
+        </div>
+      </div>
+
+      <div class="intro-card">
+      <h2>Why this place exists</h2>
+      <div class="intro-tagline">A small mountain for your unproven ideas</div>
+      <p>
+        Most of us are sitting on a theory we've never said out loud — about a show,
+        a person, a pattern in the world, or something we can't quite explain. This
+        board exists as a place to put those ideas down: no peer review, no proof
+        required, just a space for hunches, hypotheses, and "hear me out" moments.
+      </p>
+      <p>
+        Post your theory, see what others have dreamed up, and upvote the ones that
+        make you go "...wait, actually?"
+      </p>
+      <div class="intro-features">
+        <div class="intro-feature">Share any theory, big or small</div>
+        <div class="intro-feature">Upvote the ones you believe</div>
+        <div class="intro-feature">Only you can edit your posts</div>
+      </div>
+      <div class="intro-login-link" style="margin-top:18px;">
+        <a onclick="showFounder('intro')">Meet the founder</a>
+      </div>
+      </div>
+
+      <div class="intro-quotes right">
+        <div class="intro-quote">
+          <blockquote>"Doubt is not a pleasant condition, but certainty is absurd."</blockquote>
+          <cite>— Voltaire</cite>
+        </div>
+        <div class="intro-quote">
+          <blockquote>"I know nothing except the fact of my ignorance."</blockquote>
+          <cite>— Socrates</cite>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen">
+    <div class="auth-card">
+      <h2 id="authTitle">Log in</h2>
+      <div class="sub" id="authSub">Enter your username and password to continue</div>
+      <div id="authError" class="auth-error hidden"></div>
+      <input id="authUsername" type="text" placeholder="Username" maxlength="30" autocomplete="username" />
+      <input id="authPassword" type="password" placeholder="Password" maxlength="100" autocomplete="current-password" />
+      <button id="authSubmitBtn" onclick="handleAuthSubmit()">Log In</button>
+      <div class="auth-toggle" id="authToggle">
+        No account yet? <a onclick="toggleAuthMode()">Sign up</a>
+      </div>
+      <div class="security-note">
+        This is a lightweight identity system for this board only — not bank-grade security.
+        Don't reuse a password you use elsewhere.
+        By continuing, you agree to our <a onclick="showTerms('auth')" style="color:var(--accent); cursor:pointer; text-decoration:underline;">Terms & Conditions</a>
+        and <a onclick="showPrivacy('auth')" style="color:var(--accent); cursor:pointer; text-decoration:underline;">Privacy Policy</a>.
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="appScreen" class="hidden">
+    <div class="app-topbar">
+      <div class="app-topbar-logo">World of Thinker<span class="logo-dot">.</span></div>
+      <div class="segmented">
+        <button id="segFeed" class="active" onclick="setSort('new')">Global Feed</button>
+        <button id="segMine" onclick="setSort('mine')">My Theories</button>
+      </div>
+      <button class="circle-theme-btn" id="circleThemeBtn" onclick="toggleTheme()" aria-label="Toggle theme">Dark</button>
+    </div>
+    <p class="notice">Theories are shared publicly. You can only edit or delete your own posts.</p>
+
+    <div class="app-layout">
+      <div class="app-topics-col">
+        <div class="sidebar-greeting">
+          <div class="kebab-wrap">
+            <div class="greeting-trigger" id="greetingTrigger" onclick="toggleUserMenu()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleUserMenu();}" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+              <span id="topbarAvatar" class="pfp pfp-md"></span>
+              <span class="greeting-text">Hey, <b id="whoami"></b>!</span>
+            </div>
+            <div class="dropdown-menu hidden" id="userMenu">
+              <button onclick="menuGoProfile()">My Profile</button>
+              <button onclick="menuGoMyTheories()">My Theories</button>
+              <button onclick="menuGoSettings()">Settings</button>
+              <button onclick="menuGoFounder()">About the Founder</button>
+              <button onclick="menuGoTerms()">Terms & Conditions</button>
+              <button onclick="menuGoPrivacy()">Privacy Policy</button>
+              <button class="danger" onclick="menuLogout()">Log out</button>
+            </div>
+          </div>
+          <button type="button" class="sidebar-collapse-btn" onclick="toggleSidebar()" aria-label="Collapse sidebar">⟨⟩</button>
+        </div>
+        <div class="topics-card">
+          <div class="topics-title">Topics</div>
+          <div class="topics-list" id="topicsList"></div>
+        </div>
+      </div>
+
+      <div class="app-feed-col">
+        <div class="feed-header">
+          <span class="feed-header-title" id="feedHeaderTitle">All Topics</span>
+          <button type="button" class="archive-btn" onclick="focusComposer()">+ New Theory</button>
+        </div>
+        <div class="sort-bar">
+          <button id="sortNew" class="active" onclick="setSort('new')">Newest</button>
+          <button id="sortTop" onclick="setSort('top')">Top Voted</button>
+          <button id="sortMine" onclick="setSort('mine')">My Theories</button>
+        </div>
+        <div id="feed" class="loading">Loading theories…</div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="composerModal" onclick="if(event.target===this) closeComposer()">
+      <div class="modal-card composer">
+        <button type="button" class="modal-close" onclick="closeComposer()" aria-label="Close">×</button>
+        <div class="composer-title">Post a Theory</div>
+        <input id="title" type="text" placeholder="Theory title" maxlength="100" />
+        <select id="topicSelect"></select>
+        <textarea id="body" placeholder="Explain your theory..." maxlength="2000"></textarea>
+        <button id="submitBtn" onclick="submitTheory()">Post Theory</button>
+        <div style="clear:both"></div>
+        <div id="composerRateMsg" class="auth-error hidden" style="margin-top:10px; margin-bottom:0;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="cookieBanner" class="cookie-banner hidden">
+  <p>
+    World of Thinker uses cookies and local storage to keep you logged in, remember your
+    theme, and save your preferences. Some of this is essential for the board to work.
+  </p>
+  <div class="cookie-banner-actions">
+    <button type="button" class="cookie-btn-decline" onclick="declineCookies()">Decline</button>
+    <button type="button" class="cookie-btn" onclick="acceptCookies()">Accept</button>
+  </div>
+</div>
+
+<script>
+let theories = [];
+let sortMode = 'new';
+const TOPICS = ['Tech', 'Science', 'History', 'Pop Culture', 'Conspiracy', 'Everyday Life', 'Other'];
+let selectedTopic = 'all';
+let currentUser = null; // { username }
+let authMode = 'login'; // 'login' | 'signup'
+let editingId = null;
+let founderReturnScreen = 'intro';
+
+function showFounder(fromScreen) {
+  founderReturnScreen = fromScreen;
+  document.getElementById(fromScreen === 'app' ? 'appScreen' : 'introScreen').classList.add('hidden');
+  document.getElementById('founderScreen').classList.remove('hidden');
+  setPageTitle('founderScreen');
+}
+
+function hideFounder() {
+  document.getElementById('founderScreen').classList.add('hidden');
+  const returnId = founderReturnScreen === 'app' ? 'appScreen' : 'introScreen';
+  document.getElementById(returnId).classList.remove('hidden');
+  setPageTitle(returnId);
+}
+
+/* ---------------- TERMS & CONDITIONS ---------------- */
+let termsReturnScreen = 'auth';
+const TERMS_SCREEN_MAP = { app: 'appScreen', auth: 'authScreen', intro: 'introScreen' };
+
+function showTerms(fromScreen) {
+  termsReturnScreen = fromScreen;
+  document.getElementById(TERMS_SCREEN_MAP[fromScreen] || 'introScreen').classList.add('hidden');
+  document.getElementById('termsScreen').classList.remove('hidden');
+  setPageTitle('termsScreen');
+}
+
+function hideTerms() {
+  document.getElementById('termsScreen').classList.add('hidden');
+  const returnId = TERMS_SCREEN_MAP[termsReturnScreen] || 'introScreen';
+  document.getElementById(returnId).classList.remove('hidden');
+  setPageTitle(returnId);
+}
+
+/* ---------------- PRIVACY POLICY ---------------- */
+let privacyReturnScreen = 'auth';
+
+function showPrivacy(fromScreen) {
+  privacyReturnScreen = fromScreen;
+  document.getElementById(TERMS_SCREEN_MAP[fromScreen] || 'introScreen').classList.add('hidden');
+  document.getElementById('privacyScreen').classList.remove('hidden');
+  setPageTitle('privacyScreen');
+}
+
+function hidePrivacy() {
+  document.getElementById('privacyScreen').classList.add('hidden');
+  const returnId = TERMS_SCREEN_MAP[privacyReturnScreen] || 'introScreen';
+  document.getElementById(returnId).classList.remove('hidden');
+  setPageTitle(returnId);
+}
+
+function goToApp() {
+  document.getElementById('introScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  setPageTitle('appScreen');
+  openComposer();
+}
+
+/* ---------------- PROFILE ---------------- */
+let selectedAvatar = '';
+
+function isImageAvatar(value) {
+  return !!value && value.indexOf('data:image') === 0;
+}
+
+function paintAvatar(el, avatarValue, displayName) {
+  const isImage = isImageAvatar(avatarValue);
+  el.classList.toggle('avatar-initial', !isImage);
+  if (isImage) {
+    el.innerHTML = '<img src="' + avatarValue + '" alt="">';
+  } else {
+    el.textContent = (displayName || '?').trim().charAt(0).toUpperCase() || '?';
+  }
+}
+
+function avatarSpanHTML(avatarValue, displayName, sizeClass) {
+  if (isImageAvatar(avatarValue)) {
+    return `<span class="pfp ${sizeClass}"><img src="${avatarValue}" alt=""></span>`;
+  }
+  const initial = escapeHtml((displayName || '?').trim().charAt(0).toUpperCase() || '?');
+  return `<span class="pfp avatar-initial ${sizeClass}">${initial}</span>`;
+}
+
+function readAndResizeImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('image load failed'));
+      img.onload = () => {
+        const size = 200;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const minSide = Math.min(img.width, img.height);
+        const sx = (img.width - minSide) / 2;
+        const sy = (img.height - minSide) / 2;
+        ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handlePfpUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { alert('Please choose an image file.'); return; }
+  if (file.size > 8 * 1024 * 1024) { alert('Image is too large. Please choose a file under 8MB.'); return; }
+  try {
+    const dataUrl = await readAndResizeImage(file);
+    selectedAvatar = dataUrl;
+    paintAvatar(document.getElementById('pfpPreview'), selectedAvatar, document.getElementById('profileDisplayName').value);
+  } catch (e) {
+    console.error(e);
+    alert('Could not process that image. Try a different file.');
+  }
+}
+
+function removePfp() {
+  selectedAvatar = '';
+  paintAvatar(document.getElementById('pfpPreview'), '', document.getElementById('profileDisplayName').value);
+}
+
+function showProfile() {
+  selectedAvatar = currentUser.avatar || '';
+  document.getElementById('profileDisplayName').value = currentUser.displayName;
+  document.getElementById('profileBio').value = currentUser.bio || '';
+  document.getElementById('profileSavedMsg').classList.add('hidden');
+  paintAvatar(document.getElementById('pfpPreview'), selectedAvatar, currentUser.displayName);
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('profileScreen').classList.remove('hidden');
+  setPageTitle('profileScreen');
+}
+
+function hideProfile() {
+  document.getElementById('profileScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  setPageTitle('appScreen');
+}
+
+async function saveProfile() {
+  const newName = document.getElementById('profileDisplayName').value.trim();
+  const newBio = document.getElementById('profileBio').value.trim();
+  if (!newName) { alert('Display name cannot be empty.'); return; }
+
+  try {
+    const key = 'user:' + currentUser.username;
+    const existing = await safeGet(key, true);
+    if (!existing) { alert('Could not find your account. Try logging in again.'); return; }
+    const record = JSON.parse(existing.value);
+    record.displayName = newName;
+    record.bio = newBio;
+    record.avatar = selectedAvatar;
+    const res = await window.storage.set(key, JSON.stringify(record), true);
+    if (!res) { alert('Failed to save profile. Try again.'); return; }
+
+    currentUser.displayName = newName;
+    currentUser.bio = newBio;
+    currentUser.avatar = selectedAvatar;
+    updateWhoamiDisplay();
+
+    document.getElementById('profileSavedMsg').classList.remove('hidden');
+    setTimeout(() => { hideProfile(); }, 700);
+  } catch (e) {
+    console.error(e);
+    alert('Failed to save profile. Try again.');
+  }
+}
+
+/* ---------------- SETTINGS ---------------- */
+function showSettings() {
+  document.getElementById('settingsUsername').textContent = currentUser.username;
+  const themeBtn = document.getElementById('settingsThemeToggle');
+  themeBtn.innerHTML = themeButtonHTML(currentThemeMode(), true);
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('settingsScreen').classList.remove('hidden');
+  setPageTitle('settingsScreen');
+}
+
+function hideSettings() {
+  document.getElementById('settingsScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  setPageTitle('appScreen');
+}
+
+/* ---------------- USER MENU (three-dot) ---------------- */
+function toggleUserMenu() {
+  const menu = document.getElementById('userMenu');
+  const btn = document.getElementById('greetingTrigger');
+  if (!menu) return;
+  const willOpen = menu.classList.contains('hidden');
+  menu.classList.toggle('hidden', !willOpen);
+  if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+}
+
+function closeUserMenu() {
+  const menu = document.getElementById('userMenu');
+  const btn = document.getElementById('greetingTrigger');
+  if (menu) menu.classList.add('hidden');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+document.addEventListener('click', function (e) {
+  const wrap = document.querySelector('.kebab-wrap');
+  if (wrap && !wrap.contains(e.target)) closeUserMenu();
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') { closeUserMenu(); closeComposer(); }
+});
+
+function menuGoProfile() { closeUserMenu(); showProfile(); }
+function menuGoSettings() { closeUserMenu(); showSettings(); }
+function menuGoFounder() { closeUserMenu(); showFounder('app'); }
+function menuGoTerms() { closeUserMenu(); showTerms('app'); }
+function menuGoPrivacy() { closeUserMenu(); showPrivacy('app'); }
+function menuLogout() { closeUserMenu(); logout(); }
+function menuGoMyTheories() {
+  closeUserMenu();
+  setSort('mine');
+  const feed = document.getElementById('feed');
+  if (feed) feed.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ---------------- 404 ROUTING ---------------- */
+const KNOWN_HASHES = ['', '#'];
+
+function allScreenIds() {
+  return ['founderScreen', 'introScreen', 'authScreen', 'appScreen', 'notFoundScreen', 'profileScreen', 'settingsScreen', 'termsScreen', 'privacyScreen'];
+}
+
+/* ---------------- PER-PAGE TITLES ---------------- */
+const SCREEN_TITLES = {
+  authScreen: 'Sign In',
+  introScreen: 'Welcome',
+  appScreen: 'Theory Board',
+  founderScreen: 'About the Founder',
+  profileScreen: 'My Profile',
+  settingsScreen: 'Settings',
+  termsScreen: 'Terms & Conditions',
+  privacyScreen: 'Privacy Policy',
+  notFoundScreen: 'Page Not Found'
+};
+
+function setPageTitle(screenId) {
+  const label = SCREEN_TITLES[screenId];
+  document.title = label ? `${label} · World of Thinker` : 'World of Thinker';
+}
+
+function showNotFound() {
+  allScreenIds().forEach(id => document.getElementById(id).classList.add('hidden'));
+  document.getElementById('notFoundScreen').classList.remove('hidden');
+  setPageTitle('notFoundScreen');
+}
+
+function backFromNotFound() {
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+  document.getElementById('notFoundScreen').classList.add('hidden');
+  if (currentUser) {
+    document.getElementById('appScreen').classList.remove('hidden');
+    setPageTitle('appScreen');
+  } else {
+    document.getElementById('authScreen').classList.remove('hidden');
+    setPageTitle('authScreen');
+  }
+}
+
+function checkRoute() {
+  const hash = window.location.hash;
+  if (hash && !KNOWN_HASHES.includes(hash)) {
+    showNotFound();
+  }
+}
+
+window.addEventListener('hashchange', checkRoute);
+
+function uid() {
+  return 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+async function sha256(str) {
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  const d = Math.floor(h / 24);
+  return d + 'd ago';
+}
+
+function formatDateBadge(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+}
+
+/* ---------------- AUTH ---------------- */
+
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  document.getElementById('authTitle').textContent = authMode === 'login' ? 'Log in' : 'Sign up';
+  document.getElementById('authSub').textContent = authMode === 'login'
+    ? 'Enter your username and password to continue'
+    : 'Pick a username and password — no email needed';
+  document.getElementById('authSubmitBtn').textContent = authMode === 'login' ? 'Log In' : 'Sign Up';
+  document.getElementById('authToggle').innerHTML = authMode === 'login'
+    ? 'No account yet? <a onclick="toggleAuthMode()">Sign up</a>'
+    : 'Already have an account? <a onclick="toggleAuthMode()">Log in</a>';
+  hideAuthError();
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+function hideAuthError() {
+  document.getElementById('authError').classList.add('hidden');
+}
+
+async function handleAuthSubmit() {
+  hideAuthError();
+  const usernameRaw = document.getElementById('authUsername').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const btn = document.getElementById('authSubmitBtn');
+
+  if (!usernameRaw || !password) {
+    showAuthError('Please fill in both fields.');
+    return;
+  }
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(usernameRaw)) {
+    showAuthError('Username must be 3-20 characters: letters, numbers, underscore.');
+    return;
+  }
+  if (password.length < 4) {
+    showAuthError('Password must be at least 4 characters.');
+    return;
+  }
+  const username = usernameRaw.toLowerCase();
+
+  if (authMode === 'login') {
+    const lockCheck = await checkLoginLock(username);
+    if (lockCheck.locked) {
+      showAuthError(`Too many attempts. Try again in ${lockCheck.waitSec}s.`);
+      return;
+    }
+  }
+
+  btn.disabled = true;
+  btn.textContent = authMode === 'login' ? 'Logging in...' : 'Signing up...';
+
+  try {
+    const key = 'user:' + username;
+    const existing = await safeGet(key, true);
+
+    if (authMode === 'signup') {
+      if (existing) {
+        showAuthError('That username is taken. Try logging in instead.');
+        return;
+      }
+      const passwordHash = await sha256(password);
+      const profile = { username, displayName: usernameRaw, passwordHash, avatar: '', bio: '', createdAt: Date.now() };
+      const res = await window.storage.set(key, JSON.stringify(profile), true);
+      if (!res) { showAuthError('Signup failed. Try again.'); return; }
+      await loginSuccess(profile);
+    } else {
+      if (!existing) {
+        showAuthError('No account with that username. Try signing up.');
+        return;
+      }
+      const profile = JSON.parse(existing.value);
+      const passwordHash = await sha256(password);
+      if (passwordHash !== profile.passwordHash) {
+        const result = await recordFailedLogin(username);
+        showAuthError(result.justLocked
+          ? `Incorrect password. Too many attempts — locked for ${Math.ceil(LOGIN_LOCKOUT_MS / 1000)}s.`
+          : 'Incorrect password.');
+        return;
+      }
+      await clearLoginAttempts(username);
+      await loginSuccess(profile);
+    }
+  } catch (e) {
+    console.error(e);
+    showAuthError('Something went wrong. Try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = authMode === 'login' ? 'Log In' : 'Sign Up';
+  }
+}
+
+/* ---------------- LOGIN RATE LIMITING ---------------- */
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_LOCKOUT_MS = 60 * 1000;
+
+async function checkLoginLock(username) {
+  try {
+    const existing = await safeGet('loginattempts:' + username, true);
+    if (!existing) return { locked: false };
+    const rec = JSON.parse(existing.value);
+    const now = Date.now();
+    if (rec.lockUntil && now < rec.lockUntil) {
+      return { locked: true, waitSec: Math.ceil((rec.lockUntil - now) / 1000) };
+    }
+    return { locked: false };
+  } catch (e) {
+    return { locked: false };
+  }
+}
+
+async function recordFailedLogin(username) {
+  const key = 'loginattempts:' + username;
+  let rec = { count: 0, lockUntil: 0 };
+  try {
+    const existing = await safeGet(key, true);
+    if (existing) rec = JSON.parse(existing.value);
+  } catch (e) { /* start fresh */ }
+
+  const now = Date.now();
+  if (rec.lockUntil && now >= rec.lockUntil) rec = { count: 0, lockUntil: 0 };
+
+  rec.count = (rec.count || 0) + 1;
+  let justLocked = false;
+  if (rec.count >= LOGIN_MAX_ATTEMPTS) {
+    rec.lockUntil = now + LOGIN_LOCKOUT_MS;
+    rec.count = 0;
+    justLocked = true;
+  }
+  try { await window.storage.set(key, JSON.stringify(rec), true); } catch (e) { /* best-effort */ }
+  return { justLocked };
+}
+
+async function clearLoginAttempts(username) {
+  try { await window.storage.set('loginattempts:' + username, JSON.stringify({ count: 0, lockUntil: 0 }), true); } catch (e) { /* best-effort */ }
+}
+
+async function safeGet(key, shared) {
+  try {
+    return await window.storage.get(key, shared);
+  } catch (e) {
+    return null;
+  }
+}
+
+async function loginSuccess(profile) {
+  currentUser = {
+    username: profile.username,
+    displayName: profile.displayName,
+    avatar: profile.avatar || '',
+    bio: profile.bio || ''
+  };
+  // Remember last username for convenience (private to this Claude account, no password stored)
+  try { await window.storage.set('lastUsername', currentUser.username, false); } catch (e) {}
+  updateWhoamiDisplay();
+  await loadTheories();
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('introScreen').classList.remove('hidden');
+  setPageTitle('introScreen');
+}
+
+function updateWhoamiDisplay() {
+  document.getElementById('whoami').textContent = currentUser.displayName;
+  paintAvatar(document.getElementById('topbarAvatar'), currentUser.avatar, currentUser.displayName);
+}
+
+function logout() {
+  currentUser = null;
+  allScreenIds().forEach(id => document.getElementById(id).classList.add('hidden'));
+  document.getElementById('authScreen').classList.remove('hidden');
+  document.getElementById('authPassword').value = '';
+  hideAuthError();
+  setPageTitle('authScreen');
+}
+
+async function prefillLastUsername() {
+  try {
+    const last = await safeGet('lastUsername', false);
+    if (last && last.value) {
+      document.getElementById('authUsername').value = last.value;
+    }
+  } catch (e) { /* ignore */ }
+}
+
+/* ---------------- THEORIES ---------------- */
+
+const SEED_THEORIES = [
+  {
+    topic: 'Tech',
+    title: 'Autocorrect is training us to think in its favorite words',
+    body: "I swear my vocabulary has started drifting toward whatever my phone suggests first. We're not writing anymore — we're picking from a lineup, and the lineup is quietly reshaping how we talk."
+  },
+  {
+    topic: 'Science',
+    title: "Deja vu is your brain double-checking its own memory",
+    body: "What if deja vu isn't a glitch at all, but your brain running a quiet verification pass — comparing a new moment to old memory fragments and briefly showing its work?"
+  },
+  {
+    topic: 'History',
+    title: "Most 'ancient wisdom' proverbs were just complaints that aged well",
+    body: "Half of what we call timeless wisdom started as one annoyed person's rant that happened to rhyme. Repeat anything for a few centuries and it stops sounding petty and starts sounding profound."
+  },
+  {
+    topic: 'Pop Culture',
+    title: "The 'villain era' trend is just permission to set boundaries",
+    body: "Everyone declaring their 'villain era' online isn't turning evil — they're finally saying no to things. We just needed a dramatic label to make basic boundaries feel exciting."
+  },
+  {
+    topic: 'Conspiracy',
+    title: 'Pigeons are the original surveillance network',
+    body: "They're everywhere, they never blink first, and they always know exactly when you've got food. I'm not saying pigeons report back to someone. I'm just saying nobody's ever seen a baby one."
+  },
+  {
+    topic: 'Everyday Life',
+    title: 'Shopping cart wheels wobble on purpose to slow you down',
+    body: "That one cart with the rogue wheel isn't bad luck — it's basically a built-in speed bump so you spend three extra seconds near the impulse-buy shelf. Coincidence? Probably. Fun to argue about? Absolutely."
+  },
+  {
+    topic: 'Other',
+    title: 'We remember songs better than facts because melody is a memory hack',
+    body: "Ever notice you can recite song lyrics from a decade ago but not what you studied last week? Attaching rhythm and pitch to information might be the original mnemonic device, long before flashcards existed."
+  }
+];
+
+async function seedTheoriesIfEmpty() {
+  try {
+    const flag = await safeGet('theories_seeded', true);
+    if (flag) return;
+  } catch (e) { /* proceed to attempt seeding */ }
+
+  const now = Date.now();
+  for (let i = 0; i < SEED_THEORIES.length; i++) {
+    const s = SEED_THEORIES[i];
+    const theory = {
+      id: 'seed_' + i + '_' + now,
+      authorUsername: 'worldofthinker',
+      authorDisplay: 'World of Thinker',
+      authorAvatar: '',
+      title: s.title,
+      body: s.body,
+      topic: s.topic,
+      votes: Math.floor(Math.random() * 6) + 2,
+      voters: [],
+      createdAt: now - (SEED_THEORIES.length - i) * 3600000
+    };
+    try {
+      await window.storage.set('theory:' + theory.id, JSON.stringify(theory), true);
+    } catch (e) { /* skip on failure, non-critical */ }
+  }
+  try {
+    await window.storage.set('theories_seeded', 'true', true);
+  } catch (e) { /* non-critical */ }
+}
+
+async function loadTheories() {
+  const feed = document.getElementById('feed');
+  feed.className = 'loading';
+  feed.textContent = 'Loading theories…';
+  try {
+    let result = await window.storage.list('theory:', true);
+    let keys = result && result.keys ? result.keys : [];
+    if (keys.length === 0) {
+      await seedTheoriesIfEmpty();
+      result = await window.storage.list('theory:', true);
+      keys = result && result.keys ? result.keys : [];
+    }
+    if (keys.length === 0) {
+      theories = [];
+      render();
+      return;
+    }
+    const fetched = [];
+    for (const k of keys) {
+      try {
+        const item = await window.storage.get(k, true);
+        if (item && item.value) fetched.push(JSON.parse(item.value));
+      } catch (e) { /* skip missing */ }
+    }
+    theories = fetched;
+    render();
+  } catch (e) {
+    feed.innerHTML = '<div class="empty">Couldn\'t load theories. Try refreshing.</div>';
+    console.error(e);
+  }
+}
+
+/* ---------------- POST RATE LIMITING ---------------- */
+const POST_MIN_GAP_MS = 20 * 1000;
+const POST_MAX_COUNT = 5;
+const POST_WINDOW_MS = 10 * 60 * 1000;
+
+async function getPostRateRecord(username) {
+  try {
+    const existing = await safeGet('postrate:' + username, true);
+    if (existing) return JSON.parse(existing.value);
+  } catch (e) { /* fall through */ }
+  return { timestamps: [] };
+}
+
+async function checkPostRateLimit(username) {
+  const now = Date.now();
+  const rec = await getPostRateRecord(username);
+  rec.timestamps = (rec.timestamps || []).filter(t => now - t < POST_WINDOW_MS);
+
+  if (rec.timestamps.length > 0) {
+    const lastPost = rec.timestamps[rec.timestamps.length - 1];
+    const gap = now - lastPost;
+    if (gap < POST_MIN_GAP_MS) {
+      const wait = Math.ceil((POST_MIN_GAP_MS - gap) / 1000);
+      return { blocked: true, message: `You're posting a little fast — wait ${wait}s before your next theory.` };
+    }
+  }
+
+  if (rec.timestamps.length >= POST_MAX_COUNT) {
+    const oldest = rec.timestamps[0];
+    const waitMin = Math.ceil((POST_WINDOW_MS - (now - oldest)) / 60000);
+    return { blocked: true, message: `You've hit the limit of ${POST_MAX_COUNT} theories per 10 minutes. Try again in ~${waitMin} min.` };
+  }
+
+  return { blocked: false };
+}
+
+async function recordPost(username) {
+  const now = Date.now();
+  const rec = await getPostRateRecord(username);
+  rec.timestamps = (rec.timestamps || []).filter(t => now - t < POST_WINDOW_MS);
+  rec.timestamps.push(now);
+  try { await window.storage.set('postrate:' + username, JSON.stringify(rec), true); } catch (e) { /* best-effort */ }
+}
+
+async function submitTheory() {
+  const titleEl = document.getElementById('title');
+  const bodyEl = document.getElementById('body');
+  const btn = document.getElementById('submitBtn');
+  const rateMsg = document.getElementById('composerRateMsg');
+  rateMsg.classList.add('hidden');
+
+  const title = titleEl.value.trim();
+  const body = bodyEl.value.trim();
+  if (!title || !body) {
+    alert('Please add both a title and your theory.');
+    return;
+  }
+
+  const rateCheck = await checkPostRateLimit(currentUser.username);
+  if (rateCheck.blocked) {
+    rateMsg.textContent = rateCheck.message;
+    rateMsg.classList.remove('hidden');
+    return;
+  }
+
+  const theory = {
+    id: uid(),
+    authorUsername: currentUser.username,
+    authorDisplay: currentUser.displayName,
+    authorAvatar: currentUser.avatar || '',
+    title,
+    body,
+    topic: document.getElementById('topicSelect').value || 'Other',
+    votes: 0,
+    voters: [],
+    createdAt: Date.now()
+  };
+
+  btn.disabled = true;
+  btn.textContent = 'Posting...';
+  try {
+    const res = await window.storage.set('theory:' + theory.id, JSON.stringify(theory), true);
+    if (res) {
+      theories.unshift(theory);
+      titleEl.value = '';
+      bodyEl.value = '';
+      render();
+      await recordPost(currentUser.username);
+      closeComposer();
+    } else {
+      alert('Failed to post. Try again.');
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Failed to post. Try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Post Theory';
+  }
+}
+
+async function upvote(id) {
+  const t = theories.find(x => x.id === id);
+  if (!t || !currentUser) return;
+  if (!t.voters) t.voters = [];
+  if (t.voters.includes(currentUser.username)) return;
+  t.voters.push(currentUser.username);
+  t.votes = t.voters.length;
+  render();
+  try {
+    await window.storage.set('theory:' + id, JSON.stringify(t), true);
+  } catch (e) {
+    console.error('vote save failed', e);
+  }
+}
+
+function startEdit(id) {
+  editingId = id;
+  render();
+}
+function cancelEdit() {
+  editingId = null;
+  render();
+}
+async function saveEdit(id) {
+  const t = theories.find(x => x.id === id);
+  if (!t) return;
+  const titleInput = document.getElementById('editTitle_' + id);
+  const bodyInput = document.getElementById('editBody_' + id);
+  const newTitle = titleInput.value.trim();
+  const newBody = bodyInput.value.trim();
+  if (!newTitle || !newBody) { alert('Title and body cannot be empty.'); return; }
+  t.title = newTitle;
+  t.body = newBody;
+  t.editedAt = Date.now();
+  try {
+    await window.storage.set('theory:' + id, JSON.stringify(t), true);
+    editingId = null;
+    render();
+  } catch (e) {
+    console.error(e);
+    alert('Failed to save edit.');
+  }
+}
+
+async function deleteTheory(id) {
+  const t = theories.find(x => x.id === id);
+  if (!t || t.authorUsername !== currentUser.username) return;
+  if (!confirm('Delete this theory? This cannot be undone.')) return;
+  try {
+    await window.storage.delete('theory:' + id, true);
+    theories = theories.filter(x => x.id !== id);
+    render();
+  } catch (e) {
+    console.error(e);
+    alert('Failed to delete.');
+  }
+}
+
+function setSort(mode) {
+  sortMode = mode;
+  document.getElementById('sortNew').classList.toggle('active', mode === 'new');
+  document.getElementById('sortTop').classList.toggle('active', mode === 'top');
+  document.getElementById('sortMine').classList.toggle('active', mode === 'mine');
+  const segFeed = document.getElementById('segFeed');
+  const segMine = document.getElementById('segMine');
+  if (segFeed && segMine) {
+    segFeed.classList.toggle('active', mode !== 'mine');
+    segMine.classList.toggle('active', mode === 'mine');
+  }
+  updateFeedHeaderTitle();
+  render();
+}
+
+function updateFeedHeaderTitle() {
+  const el = document.getElementById('feedHeaderTitle');
+  if (!el) return;
+  if (sortMode === 'mine') {
+    el.textContent = 'My Theories';
+  } else {
+    el.textContent = selectedTopic === 'all' ? 'All Topics' : selectedTopic;
+  }
+}
+
+function openComposer() {
+  const modal = document.getElementById('composerModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  const titleInput = document.getElementById('title');
+  if (titleInput) titleInput.focus();
+}
+
+function closeComposer() {
+  const modal = document.getElementById('composerModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function focusComposer() {
+  openComposer();
+}
+
+function toggleSidebar() {
+  document.querySelector('.app-layout').classList.toggle('sidebar-collapsed');
+}
+
+function renderTopics() {
+  const list = document.getElementById('topicsList');
+  const allBtn = `<button type="button" class="topic-btn ${selectedTopic === 'all' ? 'active' : ''}" onclick="filterTopic('all')">All Topics</button>`;
+  const rest = TOPICS.map(t => `
+    <button type="button" class="topic-btn ${selectedTopic === t ? 'active' : ''}" onclick="filterTopic('${t}')">${t}</button>
+  `).join('');
+  list.innerHTML = allBtn + rest;
+}
+
+function populateTopicSelect() {
+  const select = document.getElementById('topicSelect');
+  select.innerHTML = TOPICS.map(t => `<option value="${t}">${t}</option>`).join('');
+}
+
+function filterTopic(topic) {
+  selectedTopic = topic;
+  renderTopics();
+  updateFeedHeaderTitle();
+  render();
+}
+
+function render() {
+  const feed = document.getElementById('feed');
+  feed.className = '';
+  let list = [...theories];
+  if (selectedTopic !== 'all') {
+    list = list.filter(t => (t.topic || 'Other') === selectedTopic);
+  }
+  if (sortMode === 'mine') {
+    list = list.filter(t => t.authorUsername === currentUser.username);
+    list.sort((a, b) => b.createdAt - a.createdAt);
+  } else if (sortMode === 'top') {
+    list.sort((a, b) => (b.votes - a.votes) || (b.createdAt - a.createdAt));
+  } else {
+    list.sort((a, b) => b.createdAt - a.createdAt);
+  }
+
+  if (list.length === 0) {
+    feed.innerHTML = sortMode === 'mine'
+      ? '<div class="empty">You haven\'t posted any theories yet.</div>'
+      : '<div class="empty">No theories here yet. Be the first to share one!</div>';
+    return;
+  }
+
+  feed.innerHTML = list.map(t => {
+    const isMine = t.authorUsername === currentUser.username;
+    const hasVoted = (t.voters || []).includes(currentUser.username);
+    if (editingId === t.id) {
+      return `
+        <div class="theory mine">
+          <input class="composer" style="width:100%; margin-bottom:8px; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:8px;" id="editTitle_${t.id}" value="${escapeHtml(t.title)}" maxlength="100" />
+          <textarea class="edit-body" id="editBody_${t.id}" maxlength="2000">${escapeHtml(t.body)}</textarea>
+          <div class="theory-footer">
+            <button class="mini-btn" onclick="saveEdit('${t.id}')">Save</button>
+            <button class="mini-btn" onclick="cancelEdit()">Cancel</button>
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="theory ${isMine ? 'mine' : ''}">
+        <div class="theory-topline">
+          <span class="topic-tag">${escapeHtml(t.topic || 'Other')}</span>
+          <span class="theory-date">${formatDateBadge(t.createdAt)}</span>
+        </div>
+        <h3>${escapeHtml(t.title)}</h3>
+        <p class="theory-quote">${escapeHtml(t.body)}</p>
+        <div class="theory-meta">
+          ${avatarSpanHTML(t.authorAvatar, t.authorDisplay || t.authorUsername, 'pfp-tiny')}
+          ${isMine ? '<span class="you">you</span>' : escapeHtml(t.authorDisplay || t.authorUsername)}
+          · ${timeAgo(t.createdAt)}${t.editedAt ? ' · edited' : ''}
+        </div>
+        <div class="theory-footer">
+          <button class="upvote ${hasVoted ? 'voted' : ''}" ${hasVoted ? 'disabled' : ''} onclick="upvote('${t.id}')">▲ ${t.votes}</button>
+          ${isMine ? `<button class="mini-btn" onclick="startEdit('${t.id}')">Edit</button>
+          <button class="mini-btn danger" onclick="deleteTheory('${t.id}')">Delete</button>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ---------------- THEME ---------------- */
+
+const MOON_ICON = '<svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+const SUN_ICON = '<svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
+
+// Shows the icon + label for the mode you'd switch TO (moon + "Dark" in light mode, sun + "Light" in dark mode)
+function themeButtonHTML(mode, withLabel) {
+  const icon = mode === 'dark' ? SUN_ICON : MOON_ICON;
+  const label = mode === 'dark' ? 'Light' : 'Dark';
+  return withLabel ? icon + '<span>' + label + '</span>' : icon;
+}
+
+function currentThemeMode() {
+  return document.body.classList.contains('dark') ? 'dark' : 'light';
+}
+
+function applyTheme(mode) {
+  const btn = document.getElementById('themeToggle');
+  const settingsBtn = document.getElementById('settingsThemeToggle');
+  const circleBtn = document.getElementById('circleThemeBtn');
+  const nextLabel = mode === 'dark' ? 'light' : 'dark';
+  document.body.classList.toggle('dark', mode === 'dark');
+  if (btn) btn.innerHTML = themeButtonHTML(mode, true);
+  if (settingsBtn) settingsBtn.innerHTML = themeButtonHTML(mode, true);
+  if (circleBtn) {
+    circleBtn.innerHTML = themeButtonHTML(mode, false);
+    circleBtn.setAttribute('aria-label', 'Switch to ' + nextLabel + ' mode');
+    circleBtn.setAttribute('title', 'Switch to ' + nextLabel + ' mode');
+  }
+}
+
+async function toggleTheme() {
+  const isDark = document.body.classList.contains('dark');
+  const next = isDark ? 'light' : 'dark';
+  applyTheme(next);
+  try { await window.storage.set('theme', next, false); } catch (e) { /* ignore */ }
+}
+
+async function loadTheme() {
+  try {
+    const saved = await safeGet('theme', false);
+    if (saved && saved.value) {
+      applyTheme(saved.value);
+      return;
+    }
+  } catch (e) { /* ignore */ }
+  // fall back to system preference
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(prefersDark ? 'dark' : 'light');
+}
+
+/* ---------------- COOKIE CONSENT ---------------- */
+async function checkCookieConsent() {
+  try {
+    const existing = await safeGet('cookieConsent', false);
+    if (!existing) {
+      document.getElementById('cookieBanner').classList.remove('hidden');
+    }
+  } catch (e) {
+    document.getElementById('cookieBanner').classList.remove('hidden');
+  }
+}
+
+async function acceptCookies() {
+  document.getElementById('cookieBanner').classList.add('hidden');
+  try { await window.storage.set('cookieConsent', 'accepted', false); } catch (e) { /* best-effort */ }
+}
+
+async function declineCookies() {
+  document.getElementById('cookieBanner').classList.add('hidden');
+  try { await window.storage.set('cookieConsent', 'declined', false); } catch (e) { /* best-effort */ }
+}
+
+/* ---------------- INIT ---------------- */
+setPageTitle('authScreen');
+applyTheme(currentThemeMode());
+loadTheme();
+prefillLastUsername();
+checkRoute();
+renderTopics();
+populateTopicSelect();
+checkCookieConsent();
+</script>
+</body>
+</html>
